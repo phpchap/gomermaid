@@ -1,4 +1,4 @@
-module gomermaid
+module github.com/phpchap/gomermaid
 
 go 1.25.0
 

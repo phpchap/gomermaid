@@ -67,7 +67,7 @@ package main
 
 import (
 	"fmt"
-	"gomermaid"
+	"github.com/phpchap/gomermaid"
 )
 
 func main() {

@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"regexp"
 
-	"gomermaid"
+	"github.com/phpchap/gomermaid"
 )
 
 func main() {
