@@ -2760,15 +2760,11 @@ func wrapLabel(label string, width, maxLines int) []string {
 		return out
 	}
 
-	for i, part := range parts {
+	for _, part := range parts {
 		// For each paragraph, wrap and append
 		wrapped := wrapParagraph(part)
 		lines = append(lines, wrapped...)
-		// If not the last paragraph, preserve an explicit empty line to represent <br/>
-		if i < len(parts)-1 {
-			// Add an empty line to represent the forced break
-			lines = append(lines, "")
-		}
+		// If not the last paragraph, continue onto the next line (no blank line) to mirror GitHub's <br/> behavior.
 		// Respect maxLines early to avoid unnecessary work
 		if len(lines) >= maxLines {
 			break
