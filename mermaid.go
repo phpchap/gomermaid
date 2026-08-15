@@ -1055,17 +1055,34 @@ func cleanLabel(raw string) string {
 }
 
 func stripHTMLTags(s string) string {
-	// A basic implementation. The original Rust version loops over characters and skips `<...>`
+	// A basic implementation that preserves <br> and <br/> as explicit newlines.
 	var out strings.Builder
-	inTag := false
-	for _, c := range s {
-		if c == '<' {
-			inTag = true
-		} else if c == '>' && inTag {
-			inTag = false
-		} else if !inTag {
-			out.WriteRune(c)
+	chars := []rune(s)
+	i := 0
+	for i < len(chars) {
+		if chars[i] == '<' {
+			// find closing '>'
+			j := i + 1
+			for j < len(chars) && chars[j] != '>' {
+				j++
+			}
+			if j >= len(chars) {
+				// malformed tag; stop processing tags
+				i++
+				continue
+			}
+			// examine tag content
+			tag := strings.ToLower(strings.TrimSpace(string(chars[i+1 : j])))
+			// handle br or br/ with optional attributes like <br />, <br/> or <br class="x">
+			if strings.HasPrefix(tag, "br") {
+				out.WriteRune('\n')
+			}
+			// skip past '>'
+			i = j + 1
+			continue
 		}
+		out.WriteRune(chars[i])
+		i++
 	}
 	return out.String()
 }
