@@ -2709,29 +2709,55 @@ func routeSelf(canvas *Canvas, p *Placed, edge *Edge) {
 }
 
 func wrapLabel(label string, width, maxLines int) []string {
-	// A simple word wrap
-	var lines []string
-	words := strings.Fields(label)
-	if len(words) == 0 {
-		return []string{""}
-	}
+	// Support explicit HTML line breaks (<br/> or <br>) by converting them to '\n'
+	normalized := strings.ReplaceAll(label, "<br/>", "\n")
+	normalized = strings.ReplaceAll(normalized, "<br>", "\n")
 
-	cur := ""
-	for _, w := range words {
-		if cur == "" {
-			cur = w
-		} else {
-			if len(cur)+1+len(w) <= width {
-				cur += " " + w
-			} else {
-				lines = append(lines, cur)
+	// Split into paragraphs at explicit newlines, preserve empty lines
+	parts := strings.Split(normalized, "\n")
+	var lines []string
+
+	// Helper to wrap a single paragraph (existing behaviour)
+	wrapParagraph := func(par string) []string {
+		words := strings.Fields(par)
+		if len(words) == 0 {
+			return []string{""}
+		}
+		var out []string
+		cur := ""
+		for _, w := range words {
+			if cur == "" {
 				cur = w
+			} else {
+				if len(cur)+1+len(w) <= width {
+					cur += " " + w
+				} else {
+					out = append(out, cur)
+					cur = w
+				}
 			}
 		}
+		if cur != "" {
+			out = append(out, cur)
+		}
+		return out
 	}
-	if cur != "" {
-		lines = append(lines, cur)
+
+	for i, part := range parts {
+		// For each paragraph, wrap and append
+		wrapped := wrapParagraph(part)
+		lines = append(lines, wrapped...)
+		// If not the last paragraph, preserve an explicit empty line to represent <br/>
+		if i < len(parts)-1 {
+			// Add an empty line to represent the forced break
+			lines = append(lines, "")
+		}
+		// Respect maxLines early to avoid unnecessary work
+		if len(lines) >= maxLines {
+			break
+		}
 	}
+
 	if len(lines) > maxLines {
 		lines = lines[:maxLines]
 		last := lines[maxLines-1]

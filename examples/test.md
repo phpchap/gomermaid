@@ -2,6 +2,8 @@
 
 This document describes how our system works. GitHub will render the diagram below automatically!
 
+# Diagram A
+
 ```mermaid
 graph LR
 classDef user color:#ff0000
@@ -13,6 +15,8 @@ API --> DB:::db
 ```
 
 And here is a sequence diagram!
+
+# Diagram B
 
 ```mermaid
 sequenceDiagram
